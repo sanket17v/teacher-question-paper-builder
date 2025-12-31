@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Paper - Teacher Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f8fafc;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col h-screen overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-red-800 h-24 flex items-center justify-center px-8 z-20 relative">
+        <a href="dashboard.html" class="absolute left-6 text-gray-500 hover:text-blue-600 transition-colors">
+            <i class="fas fa-arrow-left text-xl"></i> Back to Dashboard
+        </a>
+        <h1 class="text-2xl font-bold text-red-900 tracking-wide uppercase">Create New Question Paper</h1>
+    </header>
+
+    <main class="flex-1 overflow-y-auto bg-gray-50 p-8">
+        <div class="max-w-6xl mx-auto">
+            <form id="paperForm" class="space-y-8">
+
+                <!-- 1. Examination Form (Metadata) -->
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                        <span
+                            class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 text-sm">1</span>
+                        Examination Form
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Row 1 -->
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">PRN No</label>
+                            <input type="text" id="prn"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="Enter PRN number">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">QP Code</label>
+                            <input type="text" id="qpCode"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="Enter Question Paper Code">
+                        </div>
+
+                        <!-- Row 2 -->
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Semester</label>
+                            <input type="text" id="semester"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="I / II / III / IV">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Academic Year</label>
+                            <input type="text" id="academicYear"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="2025-26">
+                        </div>
+
+                        <!-- Row 3 -->
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Program</label>
+                            <input type="text" id="program"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="Computer Engineering">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Program Name</label>
+                            <input type="text" id="programName"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="B.Tech Computer">
+                        </div>
+
+                        <!-- Row 4 -->
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Course Code</label>
+                            <input type="text" id="courseCode"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="CS2203T">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
+                            <input type="text" id="courseName" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="Data Structures [2023 Pattern]">
+                        </div>
+
+                        <!-- Row 5 -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                            <input type="text" id="duration" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="2 Hours">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Max Marks</label>
+                            <input type="number" id="maxMarks" required
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="50">
+                        </div>
+                        <!-- Total Questions is auto-calculated or optional? User had it in screenshot. -->
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Total Questions (Approx)</label>
+                            <input type="number" id="totalQuestions"
+                                class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm placeholder-gray-400"
+                                placeholder="10">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Question Sections -->
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+                    <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                        <span
+                            class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 text-sm">2</span>
+                        Question Sections
+                    </h2>
+
+                    <div id="sectionsContainer" class="space-y-6">
+                        <!-- Sections A, B, C injected here -->
+                    </div>
+
+                </div>
+
+                <!-- Submit -->
+                <div class="flex justify-end p-4">
+                    <button type="submit"
+                        class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]">
+                        Generate Paper
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'login.html';
+
+        const sectionsContainer = document.getElementById('sectionsContainer');
+        const sectionNames = ['Section A', 'Section B', 'Section C'];
+
+        // Initialize Sections
+        sectionNames.forEach((name, index) => {
+            const sectionDiv = document.createElement('div');
+            sectionDiv.className = 'border border-gray-200 rounded-lg p-5 bg-gray-50';
+            sectionDiv.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-700 text-lg">${name}</h3>
+                    <button type="button" class="add-q-btn px-3 py-1.5 bg-blue-100 text-blue-600 text-sm rounded hover:bg-blue-200 transition-colors" data-index="${index}">
+                        <i class="fas fa-plus mr-1"></i> Add Question
+                    </button>
+                </div>
+                <div class="questions-list space-y-3" id="list-${index}">
+                    <!-- Questions go here -->
+                </div>
+            `;
+            sectionsContainer.appendChild(sectionDiv);
+
+            // Add listener to 'Add Question' button for this section
+            sectionDiv.querySelector('.add-q-btn').addEventListener('click', () => {
+                addQuestionToSection(index);
+            });
+        });
+
+        function addQuestionToSection(sectionIndex) {
+            const listId = `list-${sectionIndex}`;
+            const list = document.getElementById(listId);
+
+            if (!list) {
+                console.error(`List container not found for index ${sectionIndex}`);
+                return;
+            }
+
+            const qDiv = document.createElement('div');
+            qDiv.className = 'p-4 bg-white border border-gray-200 rounded-md shadow-sm relative group hover:border-blue-300 transition-all';
+            qDiv.innerHTML = `
+                 <button type="button" class="delete-btn absolute top-2 right-2 text-gray-300 hover:text-red-500 transition-colors">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div class="col-span-12 md:col-span-8">
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Question Text</label>
+                        <textarea class="q-text w-full px-3 py-2 rounded border border-gray-300 focus:border-blue-500 outline-none text-sm bg-gray-50 focus:bg-white transition-colors" rows="2" placeholder="Enter question..." required></textarea>
+                    </div>
+                    <div class="col-span-4 md:col-span-2">
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">Marks</label>
+                        <input type="number" class="q-marks w-full px-3 py-2 rounded border border-gray-300 focus:border-blue-500 outline-none text-sm text-center font-mono" placeholder="5" required>
+                    </div>
+                     <div class="col-span-4 md:col-span-1">
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">CO</label>
+                         <select class="q-co w-full px-2 py-2 rounded border border-gray-300 focus:border-blue-500 outline-none text-sm">
+                            <option value="">-</option>
+                            <option value="CO1">CO1</option>
+                            <option value="CO2">CO2</option>
+                            <option value="CO3">CO3</option>
+                            <option value="CO4">CO4</option>
+                            <option value="CO5">CO5</option>
+                            <option value="CO6">CO6</option>
+                        </select>
+                    </div>
+                    <div class="col-span-4 md:col-span-1">
+                        <label class="block text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wider">BL</label>
+                        <select class="q-bl w-full px-2 py-2 rounded border border-gray-300 focus:border-blue-500 outline-none text-sm">
+                             <option value="">-</option>
+                            <option value="L1">L1</option>
+                            <option value="L2">L2</option>
+                            <option value="L3">L3</option>
+                            <option value="L4">L4</option>
+                            <option value="L5">L5</option>
+                            <option value="L6">L6</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+
+            qDiv.querySelector('.delete-btn').addEventListener('click', () => {
+                qDiv.remove();
+            });
+
+            list.appendChild(qDiv);
+        }
+
+        // Add 1 default question to Section A (Index 0)
+        // Wrapped in setTimeout to ensure DOM is ready, though typically synchronous
+        setTimeout(() => addQuestionToSection(0), 100);
+
+
+        document.getElementById('paperForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // 1. Gather Exam Details
+            const examDetails = {
+                prn: document.getElementById('prn').value,
+                semester: document.getElementById('semester').value,
+                program: document.getElementById('program').value,
+                programName: document.getElementById('programName').value,
+                courseCode: document.getElementById('courseCode').value,
+                courseName: document.getElementById('courseName').value,
+                academicYear: document.getElementById('academicYear').value,
+                duration: document.getElementById('duration').value,
+                maxMarks: parseInt(document.getElementById('maxMarks').value) || 0,
+                totalQuestions: parseInt(document.getElementById('totalQuestions').value) || 0
+            };
+
+            // 2. Gather Sections & Questions
+            // 2. Gather Sections & Questions
+            const sections = [];
+            sectionNames.forEach((name, index) => {
+                const listId = `list-${index}`;
+                const list = document.getElementById(listId);
+
+                const questions = [];
+                // Re-select the parent container for iteration to find inputs correctly
+                if (list) {
+                    list.childNodes.forEach(node => {
+                        if (node.nodeType === 1 && node.querySelector('.q-text')) {
+                            questions.push({
+                                text: node.querySelector('.q-text').value,
+                                marks: parseInt(node.querySelector('.q-marks').value) || 0,
+                                co: node.querySelector('.q-co').value,
+                                bl: node.querySelector('.q-bl').value
+                            });
+                        }
+                    });
+                }
+
+                if (questions.length > 0) {
+                    sections.push({
+                        name: name,
+                        questions: questions
+                    });
+                }
+            });
+
+            const payload = {
+                examDetails,
+                sections
+            };
+
+            console.log("Submitting Payload:", payload);
+
+            try {
+                const res = await api.post('/papers', payload, token);
+                console.log("Response:", res);
+                if (res._id) {
+                    window.location.href = `preview.html?id=${res._id}`;
+                } else {
+                    alert('Error creating paper: ' + (res.message || 'Unknown error'));
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Server error provided in API');
+            }
+        });
+    </script>
+</body>
+
+</html>

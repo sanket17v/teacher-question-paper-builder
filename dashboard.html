@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Teacher Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f8fafc;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: #94a3b8;
+            transition: all 0.3s;
+        }
+
+        .sidebar-link:hover,
+        .sidebar-link.active {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar-link i {
+            width: 24px;
+            margin-right: 12px;
+        }
+
+        .paper-card {
+            transition: all 0.2s;
+        }
+
+        .paper-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="flex bg-gray-900 h-screen overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-[#0f172a] text-white flex flex-col border-r border-gray-800 flex-shrink-0">
+        <div class="p-6 border-b border-gray-800">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">TEACHER PANEL</h2>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" class="sidebar-link active" onclick="showSection('dashboard')">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="create-paper.html" class="sidebar-link">
+                <i class="fas fa-file-circle-plus"></i> Create Question Paper
+            </a>
+            <a href="#" class="sidebar-link" onclick="showSection('my-papers')">
+                <i class="fas fa-clipboard-list"></i> My Question Papers
+            </a>
+            <a href="#" class="sidebar-link" onclick="showSection('received-papers')">
+                <i class="fas fa-inbox"></i> Received Papers
+            </a>
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-download"></i> PDF Downloads
+            </a>
+            <a href="#" class="sidebar-link" onclick="showSection('notifications')">
+                <i class="fas fa-bell"></i> Notifications
+            </a>
+            <a href="#" class="sidebar-link">
+                <i class="fas fa-file-alt"></i> Paper Template
+            </a>
+            <a href="#" class="sidebar-link" onclick="showSection('profile')">
+                <i class="fas fa-user"></i> Profile
+            </a>
+            <a href="#" class="sidebar-link" onclick="toggleSecurityModal()">
+                <i class="fas fa-cog"></i> Security Settings
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-gray-800">
+            <button id="logoutBtn"
+                class="w-full py-2 bg-red-900/30 hover:bg-red-900/50 text-red-500 rounded-lg transition-colors flex items-center justify-center font-medium">
+                <i class="fas fa-sign-out-alt mr-2"></i> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 bg-gray-50 overflow-hidden">
+
+        <!-- Top Bar -->
+        <header class="bg-white border-b border-gray-200 h-16 flex items-center justify-between px-8">
+            <h1 class="text-xl font-bold text-gray-800">Dashboard</h1>
+            <div class="flex items-center gap-4">
+                <span id="teacherName" class="text-sm font-medium text-gray-600">Teacher</span>
+                <div id="headerProfileContainer"
+                    class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center bg-blue-100 text-blue-600 font-bold border border-gray-200">
+                    <img id="headerProfilePhoto" src="" alt="Profile" class="w-full h-full object-cover hidden">
+                    <span id="headerProfileInitial">T</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Scrollable -->
+        <div class="flex-1 overflow-y-auto p-8 relative">
+
+            <!-- Dashboard Section -->
+            <div id="dashboardSection">
+                <!-- Welcome Section -->
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">My Saved Papers</h2>
+                    <p class="text-gray-500 text-sm">Recently saved question papers.</p>
+                    <div class="mt-4 flex gap-2">
+                        <button onclick="fetchPapers()"
+                            class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium transition-colors">Refresh</button>
+                    </div>
+                </div>
+
+                <!-- Papers List -->
+                <div id="papersList" class="space-y-4">
+                    <div class="text-center py-12 text-gray-400">Loading papers...</div>
+                </div>
+            </div>
+
+            <!-- Received Papers Section -->
+            <div id="receivedPapersSection" class="hidden">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Received Papers</h2>
+                    <p class="text-gray-500 text-sm">Papers shared with you by other faculty.</p>
+                    <div class="mt-4 flex gap-2">
+                        <button onclick="fetchReceivedPapers()"
+                            class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 rounded text-sm font-medium transition-colors">Refresh</button>
+                    </div>
+                </div>
+                <div id="receivedPapersList" class="space-y-4">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+
+            <!-- Notifications Section -->
+            <div id="notificationsSection" class="hidden">
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Notifications</h2>
+                    <p class="text-gray-500 text-sm">Recent updates and alerts.</p>
+                </div>
+                <div id="notificationsList" class="space-y-4 max-w-3xl">
+                    <!-- Loaded via JS -->
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profileSection" class="hidden">
+                <div class="mb-8 flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800 mb-2">My Profile</h2>
+                        <p class="text-gray-500 text-sm">Manage your personal and academic information.</p>
+                    </div>
+                    <button id="editProfileBtn" onclick="enableEditProfile()"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
+                        <i class="fas fa-edit mr-2"></i> Edit Profile
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Profile Card -->
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-1 text-center">
+                        <div
+                            class="w-32 h-32 rounded-full bg-gray-200 mx-auto mb-4 overflow-hidden border-4 border-white shadow-lg relative">
+                            <img id="profilePhotoDisplay" src="https://ui-avatars.com/api/?name=User&background=random"
+                                alt="Profile" class="w-full h-full object-cover">
+                        </div>
+                        <h3 id="profileNameDisplay" class="text-xl font-bold text-gray-800">Teacher Name</h3>
+                        <p id="profileDesignationDisplay" class="text-blue-600 font-medium text-sm mb-1">Designation</p>
+                        <p id="profileDeptDisplay" class="text-gray-500 text-xs uppercase tracking-wide">Department</p>
+
+                        <div class="mt-6 border-t border-gray-100 pt-6 text-left space-y-3">
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-envelope w-6 text-gray-400"></i>
+                                <span id="profileEmailDisplay">email@college.edu</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-phone w-6 text-gray-400"></i>
+                                <span id="profilePhoneDisplay">+91 9876543210</span>
+                            </div>
+                            <div class="flex items-center text-sm text-gray-600">
+                                <i class="fas fa-id-card w-6 text-gray-400"></i>
+                                <span id="profileIdDisplay">ID: -</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Profile Details / Edit Form -->
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+
+                        <!-- VIEW MODE -->
+                        <div id="profileViewMode" class="space-y-6">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Professional
+                                    Details</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <p class="text-xs text-gray-500 mb-1">Qualification</p>
+                                        <p id="viewQualification" class="font-medium text-gray-800">-</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-gray-500 mb-1">Experience</p>
+                                        <p id="viewExperience" class="font-medium text-gray-800">- Years</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-gray-100 pt-6">
+                                <h4 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">About Me</h4>
+                                <p id="viewBio" class="text-gray-600 text-sm leading-relaxed">
+                                    No bio added yet.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- EDIT MODE -->
+                        <form id="profileEditForm" class="hidden space-y-6" onsubmit="saveProfile(event)">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input type="text" id="editName"
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                    <input type="text" id="editPhone"
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Designation</label>
+                                    <input type="text" id="editDesignation" placeholder="e.g. Asst. Professor"
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                                    <input type="text" id="editDepartment" placeholder="e.g. Computer Science"
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">College ID</label>
+                                    <input type="text" id="editCollegeId"
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Experience
+                                        (Years)</label>
+                                    <input type="number" id="editExperience"
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Qualification</label>
+                                    <input type="text" id="editQualification"
+                                        placeholder="e.g. Ph.D. in Computer Science"
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
+                                    <div class="flex items-center gap-4">
+                                        <div
+                                            class="w-16 h-16 rounded-full bg-gray-100 overflow-hidden border border-gray-200">
+                                            <img id="previewPhoto" src="" alt="Preview"
+                                                class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex-1">
+                                            <input type="file" id="editPhotoFile" accept="image/*"
+                                                class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 mb-2">
+                                            <p class="text-xs text-gray-400">Recommended: Square image, max 2MB.</p>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="editPhotoUrl">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+                                    <textarea id="editBio" rows="4"
+                                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+                                </div>
+                            </div>
+                            <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                                <button type="button" onclick="cancelEditProfile()"
+                                    class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-medium transition-colors">Cancel</button>
+                                <button type="submit"
+                                    class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">Save
+                                    Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Security Modal -->
+    <div id="securityModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md relative">
+            <button onclick="toggleSecurityModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-xl font-bold text-gray-800 mb-6">Security Settings</h2>
+
+            <form id="changePasswordForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                    <input type="password" id="oldPassword" required
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                    <input type="password" id="newPassword" required
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+                    <input type="password" id="confirmNewPassword" required
+                        class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <button type="submit"
+                    class="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">Update
+                    Password</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        const token = localStorage.getItem('token');
+
+        if (!user || !token) {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('teacherName').textContent = user.name;
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+
+        // Toggle Security Modal
+        function toggleSecurityModal() {
+            const modal = document.getElementById('securityModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // Change Password
+        document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+            if (newPassword !== confirmNewPassword) {
+                alert("New passwords do not match");
+                return;
+            }
+
+            try {
+                const res = await api.put('/auth/updatepassword', { oldPassword, newPassword }, token);
+                if (res.message) {
+                    alert(res.message);
+                    toggleSecurityModal();
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    alert("Password updated");
+                    toggleSecurityModal();
+                }
+            } catch (err) {
+                alert(err.message || "Failed to update password");
+            }
+        });
+
+        async function fetchPapers() {
+            try {
+                const papers = await api.get('/papers', token);
+                const container = document.getElementById('papersList');
+
+                if (papers.length === 0) {
+                    container.innerHTML = `<div class="text-center py-12 text-gray-400">No papers found.</div>`;
+                    return;
+                }
+
+                container.innerHTML = papers.map(paper => `
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 paper-card">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-gray-800 text-lg truncate">${paper.title}</h4>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <span class="mr-3"><i class="far fa-calendar mr-1"></i>${new Date(paper.createdAt).toLocaleString()}</span>
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <a href="preview.html?id=${paper._id}" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">View</a>
+                            <button onclick="downloadPaper('${paper._id}', '${paper.title}')" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">Download</button>
+                            <button onclick="sendPaper('${paper._id}')" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">Send</button>
+                            <button class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors opacity-50 cursor-not-allowed">Edit</button>
+                            <button onclick="deletePaper('${paper._id}')" class="px-4 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-sm font-medium transition-colors">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error fetching papers:', error);
+                document.getElementById('papersList').innerHTML = '<div class="text-center text-red-500">Failed to load papers.</div>';
+            }
+        }
+
+        async function deletePaper(id) {
+            if (confirm('Are you sure you want to delete this paper?')) {
+                try {
+                    await api.delete(`/papers/${id}`, token);
+                    fetchPapers(); // Refresh
+                } catch (error) {
+                    alert('Failed to delete paper');
+                }
+            }
+        }
+
+        // Mock download for now as it redirects to preview usually
+        function downloadPaper(id, title) {
+            window.location.href = `preview.html?id=${id}`;
+        }
+
+        async function sendPaper(id) {
+            const email = prompt("Enter email to share with:");
+            if (email) {
+                try {
+                    const res = await api.post(`/papers/${id}/share`, { email }, token);
+                    // Check logic based on backend response
+                    if (res && (res.message && res.message.toLowerCase().includes('success'))) {
+                        alert(res.message);
+                    } else {
+                        alert('Error sharing paper: ' + (res.message || 'Unknown error') + (res.error ? '\nDetails: ' + res.error : ''));
+                    }
+                } catch (error) {
+                    alert('Failed to send request: ' + error.message);
+                }
+            }
+        }
+
+        // Initial Load
+        // Ensure user obj is refreshed with profile data if available
+        renderProfile();
+        fetchPapers();
+
+        // Section Toggling
+        function showSection(sectionId) {
+            // Hide all
+            document.getElementById('dashboardSection').classList.add('hidden');
+            document.getElementById('receivedPapersSection').classList.add('hidden');
+            document.getElementById('notificationsSection').classList.add('hidden');
+            document.getElementById('profileSection').classList.add('hidden');
+
+            // Remove active class
+            document.querySelectorAll('.sidebar-link').forEach(link => link.classList.remove('active'));
+
+            // Show target
+            if (sectionId === 'dashboard') {
+                document.getElementById('dashboardSection').classList.remove('hidden');
+                document.querySelector('a[onclick="showSection(\'dashboard\')"]').classList.add('active');
+                fetchPapers();
+            } else if (sectionId === 'received-papers') {
+                document.getElementById('receivedPapersSection').classList.remove('hidden');
+                document.querySelector('a[onclick="showSection(\'received-papers\')"]').classList.add('active');
+                fetchReceivedPapers();
+            } else if (sectionId === 'notifications') {
+                document.getElementById('notificationsSection').classList.remove('hidden');
+                document.querySelector('a[onclick="showSection(\'notifications\')"]').classList.add('active');
+                fetchNotifications();
+            } else if (sectionId === 'profile') {
+                document.getElementById('profileSection').classList.remove('hidden');
+                document.querySelector('a[onclick="showSection(\'profile\')"]').classList.add('active');
+                renderProfile();
+            }
+        }
+
+        // --- PROFILE FUNCTIONS ---
+
+        function renderProfile() {
+            // Refresh user from localstorage
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            const p = currentUser.profile || {};
+
+            // Display Values
+            document.getElementById('profileNameDisplay').textContent = currentUser.name;
+            document.getElementById('teacherName').textContent = currentUser.name; // Header update
+            document.getElementById('profileEmailDisplay').textContent = currentUser.email;
+            document.getElementById('profilePhoneDisplay').textContent = currentUser.phone || 'Not set';
+
+            document.getElementById('profileDesignationDisplay').textContent = p.designation || 'Faculty Member';
+            document.getElementById('profileDeptDisplay').textContent = p.department || 'General Department';
+            document.getElementById('profileIdDisplay').textContent = `ID: ${p.collegeId || '-'}`;
+
+            document.getElementById('viewQualification').textContent = p.qualification || '-';
+            document.getElementById('viewExperience').textContent = p.experience ? `${p.experience} Years` : '-';
+            document.getElementById('viewBio').textContent = p.bio || 'No bio added yet.';
+
+            // Photo
+            const photoUrl = p.photoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=random`;
+            document.getElementById('profilePhotoDisplay').src = photoUrl;
+
+            // Sync Header Photo
+            if (p.photoUrl) {
+                document.getElementById('headerProfilePhoto').src = p.photoUrl;
+                document.getElementById('headerProfilePhoto').classList.remove('hidden');
+                document.getElementById('headerProfileInitial').classList.add('hidden');
+            } else {
+                document.getElementById('headerProfileInitial').textContent = currentUser.name.charAt(0).toUpperCase();
+                document.getElementById('headerProfilePhoto').classList.add('hidden');
+                document.getElementById('headerProfileInitial').classList.remove('hidden');
+            }
+        }
+
+        // File Upload Handler
+        document.getElementById('editPhotoFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) { // 2MB limit check on client
+                    alert("File size too large (max 2MB)");
+                    this.value = ''; // Clear input
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const base64 = e.target.result;
+                    document.getElementById('editPhotoUrl').value = base64; // Store in hidden input
+                    document.getElementById('previewPhoto').src = base64;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function enableEditProfile() {
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            const p = currentUser.profile || {};
+
+            // Populate Form
+            document.getElementById('editName').value = currentUser.name || '';
+            document.getElementById('editPhone').value = currentUser.phone || '';
+            document.getElementById('editDesignation').value = p.designation || '';
+            document.getElementById('editDepartment').value = p.department || '';
+            document.getElementById('editCollegeId').value = p.collegeId || '';
+            document.getElementById('editQualification').value = p.qualification || '';
+            document.getElementById('editExperience').value = p.experience || '';
+
+            // Photo
+            const currentPhoto = p.photoUrl || '';
+            document.getElementById('editPhotoUrl').value = currentPhoto;
+            document.getElementById('previewPhoto').src = currentPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.name)}&background=random`;
+            // Note: We don't populate file input value (browser security)
+
+            document.getElementById('editBio').value = p.bio || '';
+
+            // Toggle Views
+            document.getElementById('profileViewMode').classList.add('hidden');
+            document.getElementById('editProfileBtn').classList.add('hidden');
+            document.getElementById('profileEditForm').classList.remove('hidden');
+        }
+
+        function cancelEditProfile() {
+            document.getElementById('profileViewMode').classList.remove('hidden');
+            document.getElementById('editProfileBtn').classList.remove('hidden');
+            document.getElementById('profileEditForm').classList.add('hidden');
+        }
+
+        async function saveProfile(e) {
+            e.preventDefault();
+
+            const payload = {
+                name: document.getElementById('editName').value,
+                phone: document.getElementById('editPhone').value,
+                profile: {
+                    designation: document.getElementById('editDesignation').value,
+                    department: document.getElementById('editDepartment').value,
+                    collegeId: document.getElementById('editCollegeId').value,
+                    qualification: document.getElementById('editQualification').value,
+                    experience: document.getElementById('editExperience').value,
+                    photoUrl: document.getElementById('editPhotoUrl').value,
+                    bio: document.getElementById('editBio').value
+                }
+            };
+
+            try {
+                const res = await api.put('/auth/updateprofile', payload, token);
+
+                if (res._id) {
+                    // Update LocalStorage
+                    localStorage.setItem('user', JSON.stringify(res));
+                    alert("Profile updated successfully!");
+                    cancelEditProfile();
+                    renderProfile();
+                } else {
+                    alert(res.message || "Failed to update profile");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Error updating profile");
+            }
+        }
+
+        async function fetchReceivedPapers() {
+            const container = document.getElementById('receivedPapersList');
+            container.innerHTML = '<div class="text-center py-12 text-gray-400">Loading received papers...</div>';
+
+            try {
+                const papers = await api.get('/papers/received', token);
+
+                if (papers.length === 0) {
+                    container.innerHTML = `<div class="text-center py-12 text-gray-400">No received papers found.</div>`;
+                    return;
+                }
+
+                container.innerHTML = papers.map(paper => `
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4 paper-card">
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-gray-800 text-lg truncate">${paper.title}</h4>
+                            <p class="text-xs text-gray-500 mt-1">
+                                <span class="mr-3"><i class="fas fa-user mr-1"></i>From: ${paper.user ? paper.user.name : 'Unknown'}</span>
+                                <span class="mr-3"><i class="far fa-calendar mr-1"></i>${new Date(paper.createdAt).toLocaleString()}</span>
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            <a href="preview.html?id=${paper._id}" class="px-4 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-sm font-medium transition-colors">View</a>
+                            <button onclick="downloadPaper('${paper._id}', '${paper.title}')" class="px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">Download</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error fetching received papers:', error);
+                container.innerHTML = '<div class="text-center text-red-500">Failed to load received papers.</div>';
+            }
+        }
+
+        async function fetchNotifications() {
+            const container = document.getElementById('notificationsList');
+            container.innerHTML = '<div class="text-center py-12 text-gray-400">Loading notifications...</div>';
+
+            try {
+                // For now, we simulate notifications based on received papers
+                const papers = await api.get('/papers/received', token);
+
+                if (papers.length === 0) {
+                    container.innerHTML = `<div class="text-center py-12 text-gray-400">No new notifications.</div>`;
+                    return;
+                }
+
+                // Sort by newest first
+                papers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+                container.innerHTML = papers.map(paper => `
+                    <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-gray-800 font-medium">New Paper Received</p>
+                            <p class="text-sm text-gray-600">
+                                <strong>${paper.user ? paper.user.name : 'Someone'}</strong> shared "<strong>${paper.title}</strong>" with you.
+                            </p>
+                            <p class="text-xs text-gray-400 mt-2">${new Date(paper.createdAt).toLocaleString()}</p>
+                        </div>
+                         <a href="preview.html?id=${paper._id}" class="text-blue-600 hover:text-blue-700 text-sm font-medium">View</a>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                container.innerHTML = '<div class="text-center text-red-500">Failed to load notifications.</div>';
+            }
+        }
+    </script>
+</body>
+
+</html>

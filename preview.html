@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Paper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Times+New+Roman&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            #paper-content {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+                width: 100%;
+                border: none;
+            }
+
+            /* Table Layout for Repeating Headers */
+            table.paper-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            tbody {
+                display: table-row-group;
+            }
+
+            /* Page Break handling */
+            .question-item {
+                page-break-inside: avoid;
+            }
+        }
+
+        .paper-a4 {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 20mm;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .header-logo {
+            height: 70px;
+            width: auto;
+        }
+
+        .institute-header {
+            border-bottom: 2px solid #800000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        table.exam-meta {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table.exam-meta td {
+            padding: 4px;
+            border: none;
+            font-weight: bold;
+        }
+
+        .section-header {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen py-8">
+
+    <!-- Actions Bar -->
+    <div class="fixed top-0 left-0 right-0 bg-white shadow-md p-4 flex justify-between items-center z-50 no-print">
+        <a href="dashboard.html" class="text-gray-600 hover:text-blue-600 font-medium">
+            <i class="fas fa-arrow-left mr-2"></i>Back
+        </a>
+        <div class="flex gap-4">
+            <button onclick="sharePaper()"
+                class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">
+                <i class="fas fa-envelope mr-2"></i>Send via Email
+            </button>
+            <button onclick="window.print()"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                <i class="fas fa-print mr-2"></i>Print / Save as PDF
+            </button>
+        </div>
+    </div>
+
+    <div class="h-20 no-print"></div>
+
+    <!-- Paper Content -->
+    <div id="paper-content" class="paper-a4 text-black">
+        <table class="paper-table">
+            <thead>
+                <tr>
+                    <td>
+                        <!-- Header -->
+                        <div class="institute-header flex justify-between items-center">
+                            <img src="images/rscoe.png" class="header-logo" alt="Logo"
+                                onerror="this.style.display='none'">
+                            <div class="text-center flex-1 px-4">
+                                <h1 class="text-xl font-bold uppercase text-[#800000]">JSPM'S Rajarshi Shahu College of
+                                    Engineering</h1>
+                                <p class="text-sm font-bold">Approved by AICTE, Affiliated to SPPU, Pune</p>
+                                <p class="text-sm">NBA Accredited, NAAC 'A' Grade</p>
+                            </div>
+                            <img src="images/jspm.png" class="header-logo" alt="Logo"
+                                onerror="this.style.display='none'">
+                        </div>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <!-- Exam Details -->
+                        <div id="examMetaContainer">
+                            <!-- Injected via JS -->
+                        </div>
+
+                        <p class="text-xs italic mb-4 border-t border-b border-black py-1">Instructions: 1) All
+                            questions are compulsory. 2) Figures to the right indicate full marks. 3) Assume suitable
+                            data if necessary.</p>
+
+                        <!-- Questions -->
+                        <div id="questionsContainer" class="text-base text-justify leading-relaxed">
+                            <!-- Questions loaded here -->
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="mt-12 text-center text-sm font-bold border-t border-black pt-4">
+                            *** End of Question Paper ***
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const paperId = urlParams.get('id');
+        const token = localStorage.getItem('token');
+
+        if (!token) window.location.href = 'login.html';
+
+        let currentPaperTitle = 'Question_Paper';
+
+        async function loadPaper() {
+            try {
+                const paper = await api.get(`/papers/${paperId}`, token);
+                const ed = paper.examDetails || {};
+
+                // Render Metadata
+                const metaHtml = `
+                    <table class="exam-meta">
+                        <tr>
+                            <td colspan="2" class="text-center uppercase text-lg border-none pb-4">Examination Form ${ed.academicYear ? '- ' + ed.academicYear : ''}</td>
+                        </tr>
+                         <tr>
+                            <td>Program: ${ed.program || ''}</td>
+                            <td class="text-right">Semester: ${ed.semester || ''}</td>
+                        </tr>
+                        <tr>
+                            <td>Course: ${ed.courseName || ''} (${ed.courseCode || ''})</td>
+                            <td class="text-right">Duration: ${ed.duration || ''}</td>
+                        </tr>
+                        <tr>
+                            <td>PRN: ${ed.prn || ''}</td>
+                             <td class="text-right">Max Marks: ${ed.maxMarks || ''}</td>
+                        </tr>
+                    </table>
+                `;
+                document.getElementById('examMetaContainer').innerHTML = metaHtml;
+                currentPaperTitle = (ed.courseName || 'Paper').replace(/\s+/g, '_');
+                document.title = currentPaperTitle; // Set page title for PDF filename
+
+                // Render Sections
+                const container = document.getElementById('questionsContainer');
+                if (paper.sections && paper.sections.length > 0) {
+                    let globalQIndex = 0;
+                    container.innerHTML = paper.sections.map(section => `
+                        <div class="mb-6">
+                            <div class="section-header">${section.name}</div>
+                            ${section.questions.map((q) => {
+                        globalQIndex++;
+                        return `
+                                <div class="flex mb-4 relative question-item">
+                                    <span class="font-bold mr-2">Q.${globalQIndex}</span>
+                                    <div class="flex-1">
+                                        <span>${q.text}</span>
+                                        ${(q.co || q.bl) ? `<br><span class="text-xs text-gray-600 font-bold">[CO: ${q.co || '-'} | BL: ${q.bl || '-'}]</span>` : ''}
+                                    </div>
+                                    <span class="font-bold w-16 text-right">[${q.marks} M]</span>
+                                </div>
+                            `;
+                    }).join('')}
+                        </div>
+                    `).join('');
+                } else if (paper.questions) {
+                    // Fallback for old schema
+                    container.innerHTML = paper.questions.map((q, i) => `
+                         <div class="flex mb-4 question-item">
+                            <span class="font-bold mr-2">Q.${i + 1})</span>
+                            <div class="flex-1">
+                                <span>${q.text}</span>
+                            </div>
+                            <span class="font-bold w-16 text-right">[${q.marks}]</span>
+                        </div>
+                    `).join('');
+                }
+
+            } catch (error) {
+                alert('Failed to load paper');
+                console.error(error);
+            }
+        }
+
+        async function sharePaper() {
+            const email = prompt("Enter recipient email address:");
+            if (email) {
+                try {
+                    const res = await api.post(`/papers/${paperId}/share`, { email }, token);
+                    alert(res.message);
+                } catch (error) {
+                    alert('Failed to send email');
+                }
+            }
+        }
+
+        loadPaper();
+    </script>
+</body>
+
+</html>
