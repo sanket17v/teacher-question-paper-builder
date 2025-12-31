@@ -6,13 +6,14 @@ const nodemailer = require('nodemailer');
 // Create a new paper
 exports.createPaper = async (req, res) => {
     try {
-        const { examDetails, sections } = req.body;
+        const { examDetails, sections, courseOutcomes } = req.body;
 
         const paper = new Paper({
             user: req.user._id,
             title: examDetails.courseName || 'Untitled Paper', // Use Course Name as title if available
             examDetails,
-            sections
+            sections,
+            courseOutcomes
         });
 
         const createdPaper = await paper.save();

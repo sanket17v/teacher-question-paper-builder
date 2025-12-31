@@ -136,28 +136,47 @@
                     </div>
                 </div>
 
-                <!-- 2. Question Sections -->
+                <!-- 2. Course Outcomes -->
                 <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
                     <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
                         <span
                             class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 text-sm">2</span>
-                        Question Sections
+                        Course Outcomes
                     </h2>
 
-                    <div id="sectionsContainer" class="space-y-6">
-                        <!-- Sections A, B, C injected here -->
+                    <div id="coContainer" class="space-y-4 mb-6">
+                        <!-- COs will be added here -->
                     </div>
 
-                </div>
-
-                <!-- Submit -->
-                <div class="flex justify-end p-4">
-                    <button type="submit"
-                        class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]">
-                        Generate Paper
+                    <button type="button" id="addCoBtn"
+                        class="px-4 py-2 bg-blue-50 text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-100 transition-colors">
+                        <i class="fas fa-plus mr-2"></i> Add Course Outcome
                     </button>
                 </div>
-            </form>
+        </div>
+
+        <!-- 3. Question Sections -->
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+            <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                <span
+                    class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mr-3 text-sm">3</span>
+                Question Sections
+            </h2>
+
+            <div id="sectionsContainer" class="space-y-6">
+                <!-- Sections A, B, C injected here -->
+            </div>
+
+        </div>
+
+        <!-- Submit -->
+        <div class="flex justify-end p-4">
+            <button type="submit"
+                class="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-[1.02]">
+                Generate Paper
+            </button>
+        </div>
+        </form>
         </div>
     </main>
 
@@ -166,8 +185,45 @@
         const token = localStorage.getItem('token');
         if (!token) window.location.href = 'login.html';
 
+        const coContainer = document.getElementById('coContainer');
+        const addCoBtn = document.getElementById('addCoBtn');
         const sectionsContainer = document.getElementById('sectionsContainer');
+
         const sectionNames = ['Section A', 'Section B', 'Section C'];
+
+        function updateCoNumbers() {
+            const coItems = coContainer.querySelectorAll('.co-item');
+            coItems.forEach((item, index) => {
+                const label = item.querySelector('.co-label');
+                label.textContent = `CO${index + 1}:`;
+            });
+        }
+
+        function addCO(text = '') {
+            const coDiv = document.createElement('div');
+            coDiv.className = 'co-item flex items-center gap-4 bg-gray-50 p-3 rounded-lg border border-gray-200 group transition-all hover:border-blue-200';
+            coDiv.innerHTML = `
+                <span class="co-label font-bold text-blue-600 w-12">CO:</span>
+                <input type="text" class="co-text flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none text-sm" 
+                    placeholder="Enter course outcome description..." required value="${text}">
+                <button type="button" class="remove-co-btn text-gray-400 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            coDiv.querySelector('.remove-co-btn').addEventListener('click', () => {
+                coDiv.remove();
+                updateCoNumbers();
+            });
+
+            coContainer.appendChild(coDiv);
+            updateCoNumbers();
+        }
+
+        addCoBtn.addEventListener('click', () => addCO());
+
+        // Initialize with default COs or at least one
+        addCO();
 
         // Initialize Sections
         sectionNames.forEach((name, index) => {
@@ -272,8 +328,12 @@
                 totalQuestions: parseInt(document.getElementById('totalQuestions').value) || 0
             };
 
-            // 2. Gather Sections & Questions
-            // 2. Gather Sections & Questions
+            // 2. Gather Course Outcomes
+            const courseOutcomes = Array.from(coContainer.querySelectorAll('.co-text'))
+                .map(input => input.value.trim())
+                .filter(val => val !== '');
+
+            // 3. Gather Sections & Questions
             const sections = [];
             sectionNames.forEach((name, index) => {
                 const listId = `list-${index}`;
@@ -304,6 +364,7 @@
 
             const payload = {
                 examDetails,
+                courseOutcomes,
                 sections
             };
 

@@ -40,6 +40,8 @@ const PaperSchema = new mongoose.Schema({
             ]
         }
     ],
+    // Course Outcomes
+    courseOutcomes: [String],
     sharedWith: [
         {
             email: { type: String },

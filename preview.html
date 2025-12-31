@@ -144,9 +144,25 @@
                             <!-- Injected via JS -->
                         </div>
 
-                        <p class="text-xs italic mb-4 border-t border-b border-black py-1">Instructions: 1) All
-                            questions are compulsory. 2) Figures to the right indicate full marks. 3) Assume suitable
-                            data if necessary.</p>
+                        <!-- Course Outcomes Section -->
+                        <div id="coDisplayContainer" class="border border-black mb-0 hidden">
+                            <div class="px-2 py-1 font-bold border-b border-black text-sm">Course Outcomes:</div>
+                            <div id="coList" class="px-4 py-2 text-sm space-y-1">
+                                <!-- COs injected here -->
+                            </div>
+                        </div>
+
+                        <!-- Instructions Section -->
+                        <div id="instructionsContainer" class="border border-black border-t-0 mb-4">
+                            <div class="px-2 py-1 font-bold border-b border-black text-sm">Instructions to the
+                                Candidates</div>
+                            <div class="px-4 py-2 text-sm space-y-1">
+                                <p>1. <strong>Section A:</strong> All questions are compulsory. <strong>Section
+                                        B:</strong> Attempt the questions as per the options provided.</p>
+                                <p>2. Assume suitable and necessary data wherever required.</p>
+                                <p>3. Neat diagram must be drawn wherever necessary.</p>
+                            </div>
+                        </div>
 
                         <!-- Questions -->
                         <div id="questionsContainer" class="text-base text-justify leading-relaxed">
@@ -201,6 +217,18 @@
                 document.getElementById('examMetaContainer').innerHTML = metaHtml;
                 currentPaperTitle = (ed.courseName || 'Paper').replace(/\s+/g, '_');
                 document.title = currentPaperTitle; // Set page title for PDF filename
+
+                // Render Course Outcomes
+                const coDisplayContainer = document.getElementById('coDisplayContainer');
+                if (paper.courseOutcomes && paper.courseOutcomes.length > 0) {
+                    coDisplayContainer.classList.remove('hidden');
+                    const coList = document.getElementById('coList');
+                    coList.innerHTML = paper.courseOutcomes.map((co, index) => `
+                        <div><strong>CO${index + 1}:</strong> ${co}</div>
+                    `).join('');
+                } else {
+                    coDisplayContainer.classList.add('hidden');
+                }
 
                 // Render Sections
                 const container = document.getElementById('questionsContainer');
